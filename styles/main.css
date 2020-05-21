@@ -61,7 +61,7 @@ body {
 }
 
 .input {
-    width: 72%;
+    width: 74%;
     height: 2em;
     margin-top: 1em;
     padding: 0.6em;
@@ -74,22 +74,42 @@ body {
 }
 
 .stats-container {
-    width: 72%;
+    width: 74%;
     padding: 0.6em;
     display: flex;
     flex-flow: row nowrap;
+    justify-content: space-between;
 }
 
 .score {
-    width: 70%;
     display: flex;
     flex-flow: row nowrap;
+    align-items: center;
+}
+
+.score-label {
+    color: #eeeeee;
+}
+
+.score-value {
+    font-size: 1.2em;
+    color: #b97bff;
 }
 
 .missed {
-    width: 30%;
     display: flex;
     flex-flow: row nowrap;
+    align-items: center;
+}
+
+.missed-label {
+    color: #eeeeee;
+}
+
+
+.missed-value {
+    font-size: 1.2em;
+    color: #ff7b98;
 }
 
 @media screen and (min-width: 425px) {
@@ -100,12 +120,14 @@ body {
 
 @media screen and (min-width: 800px) {
     .tile {
+        height: 4em;
         font-size: 1.5em;
     }
 }
 
 @media screen and (min-width: 1000px) {
     .tile {
+        height: 3em;
         font-size: 2em;
     }
 }
