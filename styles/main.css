@@ -1,4 +1,86 @@
 body {
     margin: 0;
     padding: 0;
+    background: #161318;
+    color: #ffffff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.9em;
+    letter-spacing: 0.2em;
+    display: flex;
+    flex-flow: column wrap;
+    align-content: center;
+}
+
+.grid-container {
+    width: 100%;
+    display: flex;
+    flex-flow: column nowrap;
+    align-content: center;
+}
+
+.row-container {
+    width: 100%;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+}
+
+.tile {
+    width: 15%;
+    height: 5em;
+    background: #4e4e4e;
+    border: 1px solid #c3faff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.outer-tile {
+    background: #233a24;
+}
+
+.middle-tile {
+    background: #2b3d44;
+}
+
+.inner-tile {
+    background: #3a283f;
+}
+
+
+@media screen and (min-width: 425px) {
+    .tile {
+        font-size: 1.2em;
+    }
+}
+
+@media screen and (min-width: 800px) {
+    .tile {
+        font-size: 1.5em;
+    }
+}
+
+@media screen and (min-width: 1000px) {
+    .tile {
+        font-size: 2em;
+    }
+}
+
+@media screen and (min-width: 1350px) {
+    .tile {
+        height: 2.5em;
+        font-size: 2.5em;
+    }
+}
+
+@media screen and (min-width: 2000px) {
+    .tile {
+        font-size: 3em;
+    }
+}
+
+@media screen and (min-width: 2500px) {
+    .tile {
+        font-size: 4em;
+    }
 }
