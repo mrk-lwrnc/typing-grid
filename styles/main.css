@@ -6,147 +6,147 @@ body {
     min-height: 100%;
     margin: 0;
     padding: 0;
+
     background: #161318;
     color: #ffffff;
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 0.9em;
-    letter-spacing: 0.2em;
+    font-size: 0.75em;
+    letter-spacing: 0.1em;
+
     display: flex;
     flex-flow: column wrap;
-    align-content: center;
     justify-content: center;
 }
 
 .grid-container {
     width: 100%;
+
     display: flex;
-    flex-flow: column nowrap;
+    flex-flow: column wrap;
     align-content: center;
 }
 
 .row-container {
-    width: 100%;
+    width: 80%;
+    padding: 0.2em;
+
+    background: #27222b;
+
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: row wrap;
     justify-content: center;
 }
 
 .tile {
-    width: 15%;
-    height: 5em;
-    background: #4e4e4e;
-    border: 1px solid #c3faff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    min-height: 1.2em;
+    padding: 0.15em;
+
+    text-align: center;
+
+    flex-grow: 1;
 }
 
 .outer-tile {
-    background: #232f3a;
+    color: #9786d4;
 }
 
 .middle-tile {
-    background: #2b3d44;
+    color: #87d4eb;
 }
 
 .inner-tile {
-    background: #433547;
+    color: #edf886;
 }
 
 .input-container {
     width: 100%;
+
     display: flex;
-    flex-flow: column nowrap;
-    align-items: center;
+    flex-flow: column wrap;
+    align-content: center;
 }
 
 .input {
-    width: 74%;
-    height: 2em;
-    margin-top: 1em;
-    padding: 0.6em;
+    width: 80%;
+    margin: 0.5em 0;
+    padding: 0.5em 0;
+
     background: #332930;
     color: #ffffff;
-    font-size: 1.2em;
+    font-size: inherit;
     border: none;
     outline: none;
     text-align: center;
 }
 
 .stats-container {
-    width: 74%;
-    padding: 0.6em;
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
 }
 
-.score {
+.score, .missed {
     display: flex;
     flex-flow: row nowrap;
     align-items: center;
 }
 
-.score-label {
-    color: #eeeeee;
+.score-label, .missed-label {
+    color: #dadada;
+}
+
+.score-value, .missed-value {
+    margin-left: 0.2em;
+
+    font-size: 1.2em;
 }
 
 .score-value {
-    font-size: 1.2em;
-    color: #b97bff;
+    color: #ffef94;
 }
-
-.missed {
-    display: flex;
-    flex-flow: row nowrap;
-    align-items: center;
-}
-
-.missed-label {
-    color: #eeeeee;
-}
-
 
 .missed-value {
-    font-size: 1.2em;
-    color: #ff7b98;
+    color: #ff949d;
 }
 
-@media screen and (min-width: 425px) {
-    .tile {
-        font-size: 1.2em;
+@media screen and (min-height: 650px) {
+    body {
+        font-size: 0.9em;
     }
 }
 
-@media screen and (min-width: 800px) {
-    .tile {
-        height: 4em;
-        font-size: 1.5em;
+@media screen and (min-height: 800px) {
+    body {
+        font-size: 1em;
     }
 }
 
-@media screen and (min-width: 1000px) {
-    .tile {
-        height: 3em;
-        font-size: 2em;
+@media screen and (min-height: 1000px) {
+    body {
+        font-size: 1.4em;
     }
 }
 
-@media screen and (min-width: 1350px) {
-    .tile {
-        height: 2.5em;
-        font-size: 2.5em;
+@media screen and (min-height: 1300px) {
+    body {
+        font-size: 1.9em;
     }
 }
 
-@media screen and (min-width: 2000px) {
-    .tile {
-        font-size: 3em;
+@media screen and (min-width: 1200px) and (min-height: 600px) {
+    body {
+        font-size: 1.3em;
     }
 }
 
-@media screen and (min-width: 2500px) {
-    .tile {
-        font-size: 4em;
+@media screen and (min-width: 1280px) and (min-height: 800px) {
+    body {
+        font-size: 1.6em;
+    }
+}
+
+@media screen and (min-width: 1440px) and (min-height: 900px) {
+    body {
+        font-size: 1.8em;
     }
 }
