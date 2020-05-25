@@ -3,6 +3,14 @@ function main() {
     const MISSED_VALUE_SELECTOR = document.querySelector('.missed-value');
     const INPUT_SELECTOR = document.querySelector('.input');
     const TILE_SELECTORS = document.querySelectorAll('.tile');
+    const INNER_TILE_SELECTOR = document.querySelector('.inner-tile');
+
+    let game_over_handler = new GameOverHandler({
+        'parent_container': document.body,
+        'tile_selectors': TILE_SELECTORS,
+        'input_selector': INPUT_SELECTOR,
+        'text_display_container': INNER_TILE_SELECTOR
+    });
 
     let word_display_handler = new WordDisplayHandler({
         'tile_selectors': TILE_SELECTORS,
@@ -11,7 +19,8 @@ function main() {
     });
 
     startWordDisplayIntervals({
-        'word_display_handler': word_display_handler
+        'word_display_handler': word_display_handler,
+        'game_over_handler': game_over_handler
     });
     addKeyDownListener({
         'input_selector': INPUT_SELECTOR,
@@ -19,30 +28,50 @@ function main() {
     });
 }
 
-function startWordDisplayIntervals({word_display_handler}) {
+function startWordDisplayIntervals({word_display_handler, game_over_handler}) {
     let word_display_gap = 4000;
     let word_display_interval = createWordDisplayInterval({
         'word_display_handler': word_display_handler,
+        'game_over_handler': game_over_handler,
         'interval': word_display_gap
     });
 
     const DECREASE_WORD_DISPLAY_GAP_INTERVAL_DURATION = 30000;
     let decrease_word_display_gap_interval = setInterval(() => {
+        const IS_GAME_OVER = word_display_handler.isGameOver();
         const WORD_DISPLAY_GAP_LIMIT = 1000;
+        const GAP_DECREASE = 500;
 
-        if(word_display_gap <= WORD_DISPLAY_GAP_LIMIT) {
+        if(word_display_gap <= WORD_DISPLAY_GAP_LIMIT || IS_GAME_OVER) {
             clearInterval(decrease_word_display_gap_interval);
 
         } else {
             clearInterval(word_display_interval);
 
-            word_display_gap -= 500;
+            word_display_gap -= GAP_DECREASE;
             word_display_interval = createWordDisplayInterval({
                 'word_display_handler': word_display_handler,
+                'game_over_handler': game_over_handler,
                 'interval': word_display_gap
             });
         }
     }, DECREASE_WORD_DISPLAY_GAP_INTERVAL_DURATION);
+}
+
+function createWordDisplayInterval({word_display_handler, game_over_handler, interval}) {
+    const FADE_INTERVAL_DURATION = 10000;
+    const WORD_DISPLAY_INTERVAL = setInterval(() => {
+        if(word_display_handler.isGameOver()) {
+            game_over_handler.execute();
+            clearInterval(WORD_DISPLAY_INTERVAL);
+        } else {
+            word_display_handler.tryStartingWordDisplay({
+                'fade_interval': FADE_INTERVAL_DURATION
+            });
+        }
+    }, interval);
+
+    return WORD_DISPLAY_INTERVAL;
 }
 
 function addKeyDownListener({input_selector, word_display_handler}) {
@@ -61,16 +90,72 @@ function addKeyDownListener({input_selector, word_display_handler}) {
     });
 }
 
-function createWordDisplayInterval({word_display_handler, interval}) {
-    const FADE_INTERVAL_DURATION = 10000;
 
-    return setInterval(() => {
-        word_display_handler.tryStartingWordDisplay({
-            'fade_interval': FADE_INTERVAL_DURATION
+class GameOverHandler {
+    constructor({parent_container, tile_selectors, input_selector, text_display_container}) {
+        this._parent_container = parent_container;
+        this._tile_selectors = tile_selectors;
+        this._text_display_container = text_display_container;
+        this._input_selector = input_selector;
+    }
+
+    execute() {
+        const TIMEOUT_DURATION = 1000;
+
+        this._updateStyles();
+        this._clearInput();
+        this._disableInput();
+        setTimeout(() => {
+            this._clearTiles();
+            this._addDisplayText();
+        }, TIMEOUT_DURATION);
+    }
+
+    _updateStyles() {
+        const STYLES = this._getStyles();
+
+        this._parent_container.classList.add(STYLES);
+    }
+
+    _clearTiles() {
+        const TILES = this._tile_selectors;
+
+        TILES.forEach(tile => {
+            tile.innerHTML = '';
         });
-    }, interval);
-}
+    }
 
+    _clearInput() {
+        this._input_selector.value = '';
+    }
+
+    _disableInput() {
+        this._input_selector.disabled = true;
+    }
+
+    _addDisplayText() {
+        const TEXT_CONTAINER = this._text_display_container;
+        const DISPLAY_TEXT = 'GAME OVER!';
+
+        TEXT_CONTAINER.innerHTML = DISPLAY_TEXT;
+        this._fadeInDisplayText();
+    }
+
+    _fadeInDisplayText() {
+        const TEXT_CONTAINER = this._text_display_container;
+        const FADE_IN_ANIMATION = 'fade-in';
+        const TIMEOUT_DURATION = 1000;
+
+        TEXT_CONTAINER.classList.add(FADE_IN_ANIMATION);
+        setTimeout(() => {
+            TEXT_CONTAINER.classList.remove(FADE_IN_ANIMATION);
+        }, TIMEOUT_DURATION);
+    }
+
+    _getStyles() {
+        return 'game-over';
+    }
+}
 
 class WordDisplayHandler {
     constructor({tile_selectors, score_value_selector, missed_value_selector}) {
@@ -86,6 +171,7 @@ class WordDisplayHandler {
     }
 
     tryStartingWordDisplay({fade_interval}) {
+        if(this.isGameOver()) { return; }
         if(!this._hasAvailableTileIndexes()) { return; }
         if(!this._hasAvailableWords()) {
             this._available_words = this._getWords();
@@ -116,6 +202,12 @@ class WordDisplayHandler {
         });
     }
 
+    isGameOver() {
+        const MAXED_MISSED_WORDS = 10;
+
+        return this._missed_words >= MAXED_MISSED_WORDS;
+    }
+
     getMissedWords() {
         return this._missed_words;
     }
@@ -142,13 +234,14 @@ class WordDisplayHandler {
         const ANIMATIONS = this._getAnimations();
         const VICTORY_DISPLAY_ANIMATION = ANIMATIONS.victory_display;
         const DISPLAY_TIMEOUT = word_display.display_timeout;
+        const SCORE = this._getScore({'tile_index': word_display.tile_index});
 
         clearTimeout(DISPLAY_TIMEOUT);
         this._removeWordDisplay({
             'word_display': word_display,
             'animation': VICTORY_DISPLAY_ANIMATION
         });
-        this._increaseTypedWords();
+        this._increaseTypedWords({'score_value': SCORE});
         this._updateScoreValueToSelector();
     }
 
@@ -178,17 +271,18 @@ class WordDisplayHandler {
     _removeWordDisplay({word_display, animation}) {
         const TILE_SELECTOR = word_display.tile_selector;
         const TILE_INDEX = word_display.tile_index;
+        const ANIMATION_TIMEOUT_CALLBACK = () => {
+            this._removeWordToTile({'tile_selector': TILE_SELECTOR});
+            this._recycleTileIndex({'tile_index': TILE_INDEX});
+            this._untrackWordDisplay({
+                'word_display': word_display
+            });
+        };
 
         this._animate({
             'tile_selector': TILE_SELECTOR,
             'animation': animation,
-            'timeout_callback': () => {
-                this._removeWordToTile({'tile_selector': TILE_SELECTOR});
-                this._recycleTileIndex({'tile_index': TILE_INDEX});
-                this._untrackWordDisplay({
-                    'word_display': word_display
-                });
-            }
+            'timeout_callback': ANIMATION_TIMEOUT_CALLBACK
         });
     }
 
@@ -198,6 +292,10 @@ class WordDisplayHandler {
 
     _updateMissedValueToSelector() {
         this._missed_value_selector.innerHTML = this._missed_words;
+
+        if(this.isGameOver()) {
+            this._clearAllWordDisplayTimeouts();
+        }
     }
 
     _generateWordDisplay() {
@@ -270,6 +368,12 @@ class WordDisplayHandler {
         this._displayed_words.splice(WORD_DISPLAY_INDEX, UNTRACK_COUNT);
     }
 
+    _clearAllWordDisplayTimeouts() {
+        this._displayed_words.forEach(word_display => {
+            clearTimeout(word_display.display_timeout);
+        });
+    }
+
     _getWordDisplayIndex({word, tile_index}) {
         let word_display_index;
 
@@ -289,12 +393,30 @@ class WordDisplayHandler {
         return this._displayed_words.filter(word_display => word_display.word === word);
     }
 
+    _getScore({tile_index}) {
+        const TILE = this._tile_selectors[tile_index];
+        const SCORES = {
+            'outer-tile': 1,
+            'middle-tile': 3,
+            'inner-tile': 5
+        };
+        let score = 0;
+
+        for (const SCORE_KEY in SCORES) {
+            if (!SCORES.hasOwnProperty(SCORE_KEY)) { continue; }
+            if(!TILE.classList.contains(SCORE_KEY)) { continue; }
+            score += SCORES[SCORE_KEY];
+        }
+
+        return score;
+    }
+
     _increaseMissedWords() {
         this._missed_words += 1;
     }
 
-    _increaseTypedWords() {
-        this._typed_words += 1;
+    _increaseTypedWords({'score_value': SCORE}) {
+        this._typed_words += SCORE;
     }
 
     _hasAvailableTileIndexes() {
